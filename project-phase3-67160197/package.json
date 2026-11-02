@@ -1,0 +1,31 @@
+{
+  "name": "project-phase3-67160197",
+  "version": "3.0.0",
+  "description": "ระบบยืม-คืนบอร์ดเกม (Boardgame Service API + Frontend) โครงงานระยะที่ 3",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "node --test --experimental-test-coverage test/validators.test.js test/external-api.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "js-yaml": "^5.4.3",
+    "morgan": "^1.11.0",
+    "mysql2": "^3.24.2",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

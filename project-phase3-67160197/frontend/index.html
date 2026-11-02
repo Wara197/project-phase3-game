@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <!-- กำหนดชุดอักขระเป็น UTF-8 เพื่อรองรับภาษาไทย -->
+    <meta charset="UTF-8" />
+    <!-- กำหนด Viewport เพื่อรองรับการแสดงผลบนอุปกรณ์มือถือและอุปกรณ์หน้าจอต่างๆ (Responsive Design) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- ชื่อหัวข้อเว็บที่จะแสดงบนแถบเบราว์เซอร์ -->
+    <title>Board Game Lending System</title>
+    <!-- เชื่อมโยงไฟล์สไตล์ CSS สำหรับจัดแต่งรูปแบบหน้าเว็บ -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ส่วนหัวของเว็บไซต์ (Header) ประกอบด้วยชื่อระบบและเมนูแท็บเลือกหน้า -->
+    <header>
+      <h1>Board-Game-Lending-System</h1>
+      <!-- แท็บเมนูหลักสำหรับสลับหน้าจอการทำงาน (บอร์ดเกม, สมาชิก, ยืม-คืน) -->
+      <nav class="tabs" aria-label="เมนูหลัก">
+        <button type="button" class="active" data-tab="boardgames">
+          บอร์ดเกม
+        </button>
+        <button type="button" data-tab="members">สมาชิก</button>
+        <button type="button" data-tab="borrowings">ยืม-คืน</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- กล่องแสดงข้อความแจ้งเตือนสถานะการทำงาน (เช่น แจ้งเตือนเมื่อบันทึกสำเร็จหรือเกิดข้อผิดพลาด) -->
+      <div id="status" role="status" aria-live="polite"></div>
+
+      <!-- ===================== ส่วนที่ 1: จัดการข้อมูลบอร์ดเกม ===================== -->
+      <section id="panel-boardgames" class="panel active">
+        <!-- ฟอร์มค้นหาบอร์ดเกมตามจำนวนผู้เล่น -->
+        <div class="card">
+          <h2>ค้นหาบอร์ดเกมตามจำนวนผู้เล่น</h2>
+          <form id="search-form" class="inline-form" novalidate>
+            <label
+              >จำนวนผู้เล่น
+              <!-- ช่องกรอกจำนวนผู้เล่นที่ต้องการค้นหา -->
+              <input
+                id="search-players"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="เช่น 4"
+              />
+            </label>
+            <button type="submit">ค้นหา</button>
+            <button type="button" id="search-reset" class="secondary">
+              แสดงทั้งหมด
+            </button>
+          </form>
+          <!-- ข้อความแสดงข้อผิดพลาดของช่องค้นหา -->
+          <small class="field-error" data-error-for="search-players"></small>
+        </div>
+
+        <!-- ฟอร์มเพิ่มและแก้ไขข้อมูลบอร์ดเกม -->
+        <div class="card">
+          <h2 id="game-form-title">เพิ่มบอร์ดเกมใหม่</h2>
+          <form id="game-form" novalidate>
+            <!-- ซ่อน ID บอร์ดเกมสำหรับใช้อ้างอิงเมื่ออยู่ในโหมดแก้ไขข้อมูล -->
+            <input id="game-id" type="hidden" />
+
+            <!-- ช่องกรอกชื่อบอร์ดเกม -->
+            <div class="field">
+              <label for="game-name">ชื่อเกม</label>
+              <input id="game-name" maxlength="150" autocomplete="off" />
+              <small class="field-error" data-error-for="game-name"></small>
+            </div>
+
+            <!-- ช่องกรอกจำนวนผู้เล่นขั้นต่ำและขั้นสูง -->
+            <div class="grid-2">
+              <div class="field">
+                <label for="game-min">ผู้เล่นขั้นต่ำ</label>
+                <input id="game-min" type="number" min="1" step="1" />
+                <small class="field-error" data-error-for="game-min"></small>
+              </div>
+              <div class="field">
+                <label for="game-max">ผู้เล่นขั้นสูง</label>
+                <input id="game-max" type="number" min="1" step="1" />
+                <small class="field-error" data-error-for="game-max"></small>
+              </div>
+            </div>
+
+            <!-- ปุ่มการทำงานสำหรับบันทึกข้อมูล หรือยกเลิกการแก้ไข -->
+            <div class="actions">
+              <button type="submit" id="game-submit">บันทึก</button>
+              <button type="button" id="game-cancel" class="secondary" hidden>
+                ยกเลิกการแก้ไข
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ตารางแสดงรายการบอร์ดเกมทั้งหมดในระบบ -->
+        <div class="card">
+          <h2>รายการบอร์ดเกม</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อเกม</th>
+                  <th>จำนวนผู้เล่น</th>
+                  <th>สถานะ</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <!-- ส่วนที่จะถูกเติมข้อมูลบอร์ดเกมด้วย JavaScript -->
+              <tbody id="games-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ส่วนที่ 2: จัดการข้อมูลสมาชิก ===================== -->
+      <section id="panel-members" class="panel">
+        <!-- ฟอร์มสำหรับเพิ่มข้อมูลสมาชิกใหม่ -->
+        <div class="card">
+          <h2>เพิ่มสมาชิกใหม่</h2>
+          <form id="member-form" novalidate>
+            <!-- ช่องกรอกชื่อ-นามสกุลสมาชิก -->
+            <div class="field">
+              <label for="member-name">ชื่อ-นามสกุล</label>
+              <input id="member-name" maxlength="100" autocomplete="off" />
+              <small class="field-error" data-error-for="member-name"></small>
+            </div>
+
+            <!-- ช่องกรอกอีเมลและเบอร์โทรศัพท์ -->
+            <div class="grid-2">
+              <div class="field">
+                <label for="member-email">อีเมล</label>
+                <input
+                  id="member-email"
+                  type="email"
+                  maxlength="100"
+                  autocomplete="off"
+                />
+                <small
+                  class="field-error"
+                  data-error-for="member-email"
+                ></small>
+              </div>
+              <div class="field">
+                <label for="member-phone">เบอร์โทรศัพท์</label>
+                <input
+                  id="member-phone"
+                  type="tel"
+                  maxlength="20"
+                  autocomplete="off"
+                />
+                <small
+                  class="field-error"
+                  data-error-for="member-phone"
+                ></small>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="member-submit">เพิ่มสมาชิก</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ตารางแสดงรายชื่อสมาชิกทั้งหมด -->
+        <div class="card">
+          <h2>รายชื่อสมาชิก</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อ</th>
+                  <th>อีเมล</th>
+                  <th>โทรศัพท์</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <!-- ส่วนที่จะถูกเติมข้อมูลสมาชิกด้วย JavaScript -->
+              <tbody id="members-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ส่วนแสดงประวัติการยืม-คืนของสมาชิกแต่ละราย (ซ่อนไว้ก่อนจนกว่าจะมีการกดดูประวัติ) -->
+        <div class="card" id="member-history" hidden>
+          <div class="card-head">
+            <h2 id="history-title">ประวัติการยืม</h2>
+            <button type="button" id="history-close" class="secondary">
+              ปิด
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>บอร์ดเกม</th>
+                  <th>วันที่ยืม</th>
+                  <th>วันที่คืน</th>
+                  <th>สถานะ</th>
+                </tr>
+              </thead>
+              <!-- ส่วนที่จะถูกเติมประวัติการยืมด้วย JavaScript -->
+              <tbody id="history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ส่วนที่ 3: จัดการการยืม-คืนบอร์ดเกม ===================== -->
+      <section id="panel-borrowings" class="panel">
+        <!-- ฟอร์มสำหรับทำรายการยืมบอร์ดเกม -->
+        <div class="card">
+          <h2>บันทึกการยืมบอร์ดเกม</h2>
+          <form id="borrow-form" novalidate>
+            <div class="grid-2">
+              <!-- เมนูดรอปดาวน์เลือกสมาชิกที่ต้องการยืม -->
+              <div class="field">
+                <label for="borrow-member">สมาชิก</label>
+                <select id="borrow-member"></select>
+                <small
+                  class="field-error"
+                  data-error-for="borrow-member"
+                ></small>
+              </div>
+              <!-- เมนูดรอปดาวน์เลือกบอร์ดเกมที่ต้องการยืม -->
+              <div class="field">
+                <label for="borrow-game">บอร์ดเกม</label>
+                <select id="borrow-game"></select>
+                <small class="field-error" data-error-for="borrow-game"></small>
+              </div>
+            </div>
+            <!-- ช่องเลือกวันที่ยืม (หากไม่ระบุ ระบบจะใช้วันที่ปัจจุบัน) -->
+            <div class="field">
+              <label for="borrow-date">วันที่ยืม (ไม่กรอก = วันนี้)</label>
+              <input id="borrow-date" type="date" />
+            </div>
+            <div class="actions">
+              <button type="submit" id="borrow-submit">บันทึกการยืม</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ตารางแสดงรายการประวัติการยืม-คืน พร้อมส่วนกรองข้อมูล -->
+        <div class="card">
+          <div class="card-head">
+            <h2>รายการยืม-คืน</h2>
+            <!-- ตัวกรองข้อมูลรายการยืม-คืน (กรองตามสถานะและช่วงวันที่) -->
+            <div class="inline-form">
+              <label
+                >สถานะ
+                <select id="borrow-filter">
+                  <option value="">ทั้งหมด</option>
+                  <option value="BORROWED">กำลังยืม</option>
+                  <option value="RETURNED">คืนแล้ว</option>
+                </select>
+              </label>
+
+              <!-- กรองตามช่วงวันที่ยืม -->
+              <div class="field">
+                <label for="borrow-from">ยืมตั้งแต่</label>
+                <input type="date" id="borrow-from" />
+              </div>
+              <div class="field">
+                <label for="borrow-to">ยืมถึง</label>
+                <input type="date" id="borrow-to" />
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>สมาชิก</th>
+                  <th>บอร์ดเกม</th>
+                  <th>วันที่ยืม</th>
+                  <th>วันที่คืน</th>
+                  <th>สถานะ</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <!-- ส่วนที่จะถูกเติมรายการยืม-คืนด้วย JavaScript -->
+              <tbody id="borrowings-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ดึงไฟล์ JavaScript (app.js) มาทำงานร่วมกับโครงสร้าง HTML -->
+    <script src="app.js"></script>
+  </body>
+</html>

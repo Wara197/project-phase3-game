@@ -1,0 +1,314 @@
+:root {
+  --bg: #dcefe9;
+  --surface: #ffffff;
+  --text: #1c2b27;
+  --muted: #5b6b66;
+  --primary: #0f766e;
+  --primary-dark: #115e59;
+  --danger: #dc2626;
+  --success: #15803d;
+  --warning: #b45309;
+  --border: #dde5e1;
+  --radius: 10px;
+}
+* {
+  box-sizing: border-box;
+}
+main {
+  background: linear-gradient(160deg, #e6f4f0 0%, #cfe9e1 100%);
+}
+body {
+  margin: 0;
+  font-family: "Sarabun", "Noto Sans Thai", "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px 16px;
+}
+header h1 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+.tabs button {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 14px;
+  font-size: 1rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.tabs button:hover {
+  color: var(--text);
+  background: none;
+}
+.tabs button.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+.panel {
+  display: none;
+}
+.panel.active {
+  display: block;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#status {
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  margin-bottom: 18px;
+}
+#status:empty {
+  display: none;
+}
+#status {
+  padding: 10px 14px;
+}
+#status.loading {
+  background: #eff6ff;
+  color: var(--primary-dark);
+}
+#status.success {
+  background: #f0fdf4;
+  color: var(--success);
+}
+#status.error {
+  background: #fef2f2;
+  color: var(--danger);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+label {
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+input,
+select {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  min-width: 0;
+}
+input:focus,
+select:focus {
+  outline: 2px solid #bfdbfe;
+  border-color: var(--primary);
+}
+input[aria-invalid="true"] {
+  border-color: var(--danger);
+  background: #fff7f7;
+}
+.field-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  min-height: 1em;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+.inline-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.inline-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+button {
+  font: inherit;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+button:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+button.secondary {
+  background: #fff;
+  color: var(--text);
+  border-color: var(--border);
+}
+button.secondary:hover:not(:disabled) {
+  background: #f9fafb;
+}
+button.small {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+button.danger {
+  background: #fff;
+  color: var(--danger);
+  border-color: #fecaca;
+}
+button.danger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+td.table-msg {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+}
+td.table-msg.error {
+  color: var(--danger);
+}
+td.actions-cell {
+  white-space: nowrap;
+}
+td.actions-cell button {
+  margin-right: 6px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.badge.available,
+.badge.RETURNED {
+  background: #dcfce7;
+  color: var(--success);
+}
+.badge.borrowed,
+.badge.BORROWED {
+  background: #fef3c7;
+  color: var(--warning);
+}
+/* ===== ตัวกรองรายการยืม-คืน ===== */
+.card-head h2 {
+  margin-bottom: 0;
+}
+
+.card-head .inline-form {
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.card-head .inline-form .field {
+  margin-bottom: 0;
+}
+
+.card-head .inline-form label {
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.card-head .inline-form select,
+.card-head .inline-form input[type="date"] {
+  height: 38px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  font-size: 0.95rem;
+}
+
+.card-head .inline-form select {
+  min-width: 120px;
+}
+
+.card-head .inline-form input[type="date"] {
+  min-width: 150px;
+}
+
+@media (max-width: 600px) {
+  .card-head .inline-form {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .card-head .inline-form label,
+  .card-head .inline-form input[type="date"],
+  .card-head .inline-form select {
+    width: 100%;
+  }
+}

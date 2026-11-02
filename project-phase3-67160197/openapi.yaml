@@ -1,0 +1,525 @@
+openapi: 3.0.3
+info:
+  title: Boardgames API
+  version: 3.0.0
+  description: |
+    API สำหรับระบบข้อมูลบอร์ดเกม (จัดการบอร์ดเกม สมาชิก และการยืม-คืน)
+
+    รูปแบบ response ทั่วไป
+    - สำเร็จ: `{ "message": "...", "data": ... }`
+    - ผิดพลาด: `{ "error": { "code": "...", "message": "..." } }`
+servers:
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: Boardgames
+    description: จัดการข้อมูลบอร์ดเกมและค้นหาตามจำนวนผู้เล่น
+  - name: Members
+    description: จัดการข้อมูลสมาชิก
+  - name: Borrowings
+    description: ยืม คืน และดูรายงานการยืม-คืน
+  - name: External
+    description: เรียกใช้งาน API ภายนอกพร้อมระบบ Resilience
+
+paths:
+  /:
+    get:
+      tags: [Boardgames]
+      summary: ตรวจสอบสถานะการทำงานของ API
+      responses:
+        "200":
+          description: API พร้อมใช้งาน
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Boardgames API พร้อมใช้งานแล้ว }
+
+  /api/v1/boardgames:
+    get:
+      tags: [Boardgames]
+      summary: ดึงรายการบอร์ดเกม (ค้นหาตามจำนวนผู้เล่นได้)
+      parameters:
+        - name: players
+          in: query
+          required: false
+          description: จำนวนผู้เล่นในกลุ่ม ระบบจะคืนเฉพาะเกมที่ minPlayers <= players <= maxPlayers
+          schema: { type: integer, minimum: 1, example: 4 }
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Boardgame" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    post:
+      tags: [Boardgames]
+      summary: เพิ่มบอร์ดเกมใหม่
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardgameInput" }
+      responses:
+        "201":
+          description: เพิ่มข้อมูลสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: เพิ่มข้อมูลสำเร็จ }
+                  data: { $ref: "#/components/schemas/BoardgameWritten" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "409":
+          description: ชื่อบอร์ดเกมซ้ำ (DUPLICATE_NAME)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/boardgames/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    get:
+      tags: [Boardgames]
+      summary: ดึงบอร์ดเกมตาม id
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data: { $ref: "#/components/schemas/Boardgame" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    put:
+      tags: [Boardgames]
+      summary: แก้ไขบอร์ดเกม (ทั้งระเบียน)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoardgameInput" }
+      responses:
+        "200":
+          description: แก้ไขข้อมูลสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: แก้ไขข้อมูลสำเร็จ }
+                  data: { $ref: "#/components/schemas/BoardgameWritten" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: ชื่อบอร์ดเกมซ้ำ (DUPLICATE_NAME)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    delete:
+      tags: [Boardgames]
+      summary: ลบบอร์ดเกม
+      responses:
+        "200": { $ref: "#/components/responses/MessageOnly" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/members:
+    get:
+      tags: [Members]
+      summary: ดึงรายชื่อสมาชิกทั้งหมด
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Member" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    post:
+      tags: [Members]
+      summary: เพิ่มสมาชิกใหม่
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MemberInput" }
+      responses:
+        "201":
+          description: เพิ่มข้อมูลสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: เพิ่มข้อมูลสำเร็จ }
+                  data: { $ref: "#/components/schemas/Member" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "409":
+          description: อีเมลซ้ำ (DUPLICATE_EMAIL)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/members/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    get:
+      tags: [Members]
+      summary: ดึงข้อมูลสมาชิกตาม id
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data: { $ref: "#/components/schemas/Member" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    put:
+      tags: [Members]
+      summary: แก้ไขข้อมูลสมาชิก
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MemberInput" }
+      responses:
+        "200":
+          description: แก้ไขข้อมูลสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: แก้ไขข้อมูลสำเร็จ }
+                  data: { $ref: "#/components/schemas/Member" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: อีเมลซ้ำ (DUPLICATE_EMAIL)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    delete:
+      tags: [Members]
+      summary: ลบสมาชิก
+      responses:
+        "200": { $ref: "#/components/responses/MessageOnly" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/members/{id}/borrowings:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    get:
+      tags: [Members]
+      summary: ดูประวัติการยืมของสมาชิกแต่ละคน
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Borrowing" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/borrowings:
+    get:
+      tags: [Borrowings]
+      summary: ดูรายการยืม-คืนทั้งหมด
+      parameters:
+        - name: memberId
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: boardgameId
+          in: query
+          schema: { type: integer, minimum: 1 }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/BorrowStatus" }
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Borrowing" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    post:
+      tags: [Borrowings]
+      summary: ยืมบอร์ดเกม
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BorrowInput" }
+      responses:
+        "201":
+          description: บันทึกการยืมสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: บันทึกการยืมสำเร็จ }
+                  data: { $ref: "#/components/schemas/BorrowingCreated" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: เกมถูกยืมอยู่ในขณะนี้ (GAME_NOT_AVAILABLE)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/borrowings/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    get:
+      tags: [Borrowings]
+      summary: ดูรายการยืมตาม id
+      responses:
+        "200":
+          description: สำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: สำเร็จ }
+                  data: { $ref: "#/components/schemas/Borrowing" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/borrowings/{id}/return:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      tags: [Borrowings]
+      summary: คืนบอร์ดเกม
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReturnInput" }
+      responses:
+        "200":
+          description: คืนบอร์ดเกมสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: คืนบอร์ดเกมสำเร็จ }
+                  data: { $ref: "#/components/schemas/Borrowing" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: รายการนี้ถูกคืนไปแล้ว (ALREADY_RETURNED)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/external/notify:
+    get:
+      tags: [External]
+      summary: เรียกใช้งาน External API ส่งแจ้งเตือน (มี Retry, Timeout, Fallback)
+      parameters:
+        - name: message
+          in: query
+          required: true
+          schema: { type: string, example: "ทดสอบการแจ้งเตือน" }
+      responses:
+        "200":
+          description: ส่งการแจ้งเตือนสำเร็จ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: ส่งการแจ้งเตือนสำเร็จ }
+                  data:
+                    type: object
+                    properties:
+                      delivered: { type: boolean, example: true }
+                      attempts: { type: integer, example: 1 }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "503":
+          description: ระบบแจ้งเตือนภายนอกไม่พร้อมใช้งาน (EXTERNAL_SERVICE_UNAVAILABLE) หลัง retry ครบ
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: รหัส (จำนวนเต็มบวก)
+      schema: { type: integer, minimum: 1, example: 1 }
+
+  responses:
+    BadRequest:
+      description: ข้อมูลไม่ถูกต้อง (VALIDATION_ERROR / INVALID_ID)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: ไม่พบข้อมูล (NOT_FOUND)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ServerError:
+      description: ข้อผิดพลาดภายในระบบ (INTERNAL_SERVER_ERROR)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    MessageOnly:
+      description: ลบข้อมูลสำเร็จ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string, example: ลบข้อมูลสำเร็จ }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string, example: NOT_FOUND }
+            message: { type: string, example: ไม่พบข้อมูล }
+
+    Boardgame:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: Catan }
+        minPlayers: { type: integer, example: 3 }
+        maxPlayers: { type: integer, example: 4 }
+        createdAt: { type: string, example: "2026-08-01 10:00:00" }
+    BoardgameWritten:
+      type: object
+      properties:
+        id: { type: integer, example: 4 }
+        name: { type: string, example: Carcassonne }
+        minPlayers: { type: integer, example: 2 }
+        maxPlayers: { type: integer, example: 5 }
+    BoardgameInput:
+      type: object
+      required: [name, minPlayers, maxPlayers]
+      properties:
+        name: { type: string, maxLength: 150, example: Carcassonne }
+        minPlayers: { type: integer, minimum: 1, example: 2 }
+        maxPlayers: { type: integer, minimum: 1, example: 5 }
+
+    Member:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: สมชาย ใจดี }
+        email: { type: string, format: email, example: somchai@example.com }
+        phone: { type: string, example: "0891234567" }
+    MemberInput:
+      type: object
+      required: [name, email, phone]
+      properties:
+        name: { type: string, maxLength: 100, example: สมชาย ใจดี }
+        email:
+          {
+            type: string,
+            format: email,
+            maxLength: 100,
+            example: somchai@example.com,
+          }
+        phone: { type: string, maxLength: 20, example: "0891234567" }
+
+    BorrowStatus:
+      type: string
+      enum: [BORROWED, RETURNED]
+    Borrowing:
+      type: object
+      properties:
+        id: { type: integer, example: 2 }
+        memberId: { type: integer, example: 1 }
+        memberName: { type: string, example: สมชาย ใจดี }
+        boardgameId: { type: integer, example: 2 }
+        boardgameName: { type: string, example: Codenames }
+        borrowDate: { type: string, format: date, example: "2026-08-20" }
+        returnDate:
+          { type: string, format: date, nullable: true, example: null }
+        status: { $ref: "#/components/schemas/BorrowStatus" }
+    BorrowingCreated:
+      type: object
+      properties:
+        id: { type: integer, example: 4 }
+        memberId: { type: integer, example: 2 }
+        boardgameId: { type: integer, example: 1 }
+        borrowDate: { type: string, format: date, example: "2026-10-12" }
+        returnDate: { type: string, nullable: true, example: null }
+        status: { type: string, enum: [BORROWED], example: BORROWED }
+    BorrowInput:
+      type: object
+      required: [memberId, boardgameId]
+      properties:
+        memberId: { type: integer, minimum: 1, example: 2 }
+        boardgameId: { type: integer, minimum: 1, example: 1 }
+        borrowDate: { type: string, format: date, example: "2026-10-12" }
+    ReturnInput:
+      type: object
+      properties:
+        returnDate: { type: string, format: date, example: "2026-10-15" }

@@ -1,0 +1,586 @@
+{
+  "info": {
+    "_postman_id": "f1e2d3c4-b5a6-7890-1234-56789abcdef0",
+    "name": "Boardgames API Collection (Hardcoded Localhost)",
+    "description": "Postman Collection สำหรับทดสอบบน http://localhost:3000 โดยตรง",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Boardgames - Success Cases",
+      "item": [
+        {
+          "name": "[200] Get All Boardgames",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"]
+            }
+          }
+        },
+        {
+          "name": "[200] Search Boardgames by Players",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames?players=4",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"],
+              "query": [{ "key": "players", "value": "4" }]
+            }
+          }
+        },
+        {
+          "name": "[200] Get Boardgame By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "[201] Create Boardgame",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carcassonne\",\n  \"minPlayers\": 2,\n  \"maxPlayers\": 5\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"]
+            }
+          }
+        },
+        {
+          "name": "[200] Update Boardgame",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carcassonne Big Box\",\n  \"minPlayers\": 2,\n  \"maxPlayers\": 6\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames", ":id"],
+              "variable": [{ "key": "id", "value": "4" }]
+            }
+          }
+        },
+        {
+          "name": "[200] Delete Boardgame",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames", ":id"],
+              "variable": [{ "key": "id", "value": "4" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Boardgames - Error Cases",
+      "item": [
+        {
+          "name": "[400] Boardgame - Invalid Players Param",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames?players=abc",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"],
+              "query": [{ "key": "players", "value": "abc" }]
+            }
+          }
+        },
+        {
+          "name": "[400] Boardgame - Invalid ID Format",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames", ":id"],
+              "variable": [{ "key": "id", "value": "abc" }]
+            }
+          }
+        },
+        {
+          "name": "[400] Boardgame - Missing Body Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Incomplete Game\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"]
+            }
+          }
+        },
+        {
+          "name": "[400] Boardgame - minPlayers > maxPlayers",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid Range\",\n  \"minPlayers\": 5,\n  \"maxPlayers\": 2\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"]
+            }
+          }
+        },
+        {
+          "name": "[404] Boardgame - Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames", ":id"],
+              "variable": [{ "key": "id", "value": "99999" }]
+            }
+          }
+        },
+        {
+          "name": "[409] Boardgame - Duplicate Name",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Catan\",\n  \"minPlayers\": 3,\n  \"maxPlayers\": 4\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/boardgames",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "boardgames"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Members - Success Cases",
+      "item": [
+        {
+          "name": "[200] Get All Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members"]
+            }
+          }
+        },
+        {
+          "name": "[200] Get Member By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "[200] Get Member Borrowings History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members/:id/borrowings",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members", ":id", "borrowings"],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "[201] Create Member",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"กนก สุขใจ\",\n  \"email\": \"kanok@example.com\",\n  \"phone\": \"0819998888\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members"]
+            }
+          }
+        },
+        {
+          "name": "[200] Update Member",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"กนก สุขใจยิ่ง\",\n  \"email\": \"kanok_updated@example.com\",\n  \"phone\": \"0819998888\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members", ":id"],
+              "variable": [{ "key": "id", "value": "4" }]
+            }
+          }
+        },
+        {
+          "name": "[200] Delete Member",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members", ":id"],
+              "variable": [{ "key": "id", "value": "4" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Members - Error Cases",
+      "item": [
+        {
+          "name": "[400] Member - Invalid Email Format",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"สมชาย\",\n  \"email\": \"invalid-email\",\n  \"phone\": \"0891234567\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members"]
+            }
+          }
+        },
+        {
+          "name": "[400] Member - Missing Body Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"สมชาย\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members"]
+            }
+          }
+        },
+        {
+          "name": "[404] Member - Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members", ":id"],
+              "variable": [{ "key": "id", "value": "99999" }]
+            }
+          }
+        },
+        {
+          "name": "[409] Member - Duplicate Email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"สมหญิง\",\n  \"email\": \"somchai@example.com\",\n  \"phone\": \"0811111111\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/members",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "members"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Borrowings - Success Cases",
+      "item": [
+        {
+          "name": "[200] Get All Borrowings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"]
+            }
+          }
+        },
+        {
+          "name": "[200] Filter Borrowings (Valid Params)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings?memberId=1&status=BORROWED&from=2026-01-01&to=2026-12-31",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"],
+              "query": [
+                { "key": "memberId", "value": "1" },
+                { "key": "status", "value": "BORROWED" },
+                { "key": "from", "value": "2026-01-01" },
+                { "key": "to", "value": "2026-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "[200] Get Borrowing By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings/:id",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "[201] Create Borrowing (Borrow Available Game)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 3,\n  \"boardgameId\": 1,\n  \"borrowDate\": \"2026-10-12\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"]
+            },
+            "description": "ยืมบอร์ดเกม ID 1 (Catan) ซึ่งปัจจุบันสถานะคืนแล้ว (ว่างให้ยืม)"
+          }
+        },
+        {
+          "name": "[200] Return Boardgame (Return Borrowed Game)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"returnDate\": \"2026-10-15\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings/:id/return",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings", ":id", "return"],
+              "variable": [{ "key": "id", "value": "2" }]
+            },
+            "description": "คืนบอร์ดเกมรายการ ID 2 (ซึ่งมีสถานะ BORROWED อยู่ใน seed)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Borrowings - Error Cases",
+      "item": [
+        {
+          "name": "[400] Filter Borrowings - Invalid Status Enum",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings?status=INVALID_STATUS",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"],
+              "query": [{ "key": "status", "value": "INVALID_STATUS" }]
+            }
+          }
+        },
+        {
+          "name": "[400] Filter Borrowings - Invalid Date Format",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings?from=12-10-2026",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"],
+              "query": [{ "key": "from", "value": "12-10-2026" }]
+            }
+          }
+        },
+        {
+          "name": "[400] Borrowing - Invalid Date Format in Body",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 1,\n  \"boardgameId\": 1,\n  \"borrowDate\": \"2026/10/12\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"]
+            }
+          }
+        },
+        {
+          "name": "[400] Return Boardgame - returnDate before borrowDate",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"returnDate\": \"2020-01-01\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings/:id/return",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings", ":id", "return"],
+              "variable": [{ "key": "id", "value": "3" }]
+            }
+          }
+        },
+        {
+          "name": "[404] Borrowing - Member Not Found",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 99999,\n  \"boardgameId\": 1,\n  \"borrowDate\": \"2026-10-12\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"]
+            }
+          }
+        },
+        {
+          "name": "[409] Borrowing - Game Not Available",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 1,\n  \"boardgameId\": 3,\n  \"borrowDate\": \"2026-10-12\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings"]
+            },
+            "description": "ยืมบอร์ดเกม ID 3 (Uno) ซึ่งสถานะปัจจุบันถูกยืมอยู่"
+          }
+        },
+        {
+          "name": "[409] Borrowing Return - Already Returned",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"returnDate\": \"2026-10-15\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/borrowings/:id/return",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "borrowings", ":id", "return"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "คืนบอร์ดเกมรายการ ID 1 ซึ่งมีสถานะ RETURNED อยู่แล้ว"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. External API & System Errors",
+      "item": [
+        {
+          "name": "[200] External Notify - Success",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/external/notify?message=ทดสอบการแจ้งเตือน",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "external", "notify"],
+              "query": [{ "key": "message", "value": "ทดสอบการแจ้งเตือน" }]
+            }
+          }
+        },
+        {
+          "name": "[400] External Notify - Missing Query Message",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/external/notify",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "external", "notify"]
+            }
+          }
+        },
+        {
+          "name": "[404] Route Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/unknown-path",
+              "host": ["http://localhost:3000"],
+              "path": ["api", "v1", "unknown-path"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
